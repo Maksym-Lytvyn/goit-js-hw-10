@@ -1,7 +1,7 @@
 {
   "name": "parcel-project-template",
   "version": "2.0.0",
-  "description": "op",
+  "description": "",
   "homepage": "https://Maksym-Lytvyn.github.io/goit-js-hw-10",
   "scripts": {
     "start": "parcel src/*.html",
