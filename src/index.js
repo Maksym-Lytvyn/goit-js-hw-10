@@ -1,34 +1,54 @@
 // здійснюємо потрібні імпорти
 import './css/styles.css';
 import debounce from 'lodash.debounce';
-import { renderCountriesList } from './fetchCountries';
-import fetchCountries from './fetchCountries';
+import Notiflix from 'notiflix';
 // захоплюємо потрібні елементи
 const input = document.querySelector('input');
 const countryList = document.querySelector('.country-list');
 const countryInfo = document.querySelector('.country-info');
 
+
 input.addEventListener('input', () => {
-    const countryName = input.value;
-    let url = `https://restcountries.com/v3.1/name/${countryName}`;
-    fetchCountries(url) 
-    .then((countries) => renderCountriesList(countries))
-    .catch((error) => console.log(error));
-});
+  let countryName = input.value;
+  countryName.trim();
+  let url = `https://restcountries.com/v3.1/name/${countryName}`;
+  console.log(url);
+  debounce(fetch(url)
+  .then((res) => res.json()
+  )
+  .then((data) => {
+    console.log(data[0])
+    // countryList.innerHTML = `<p>${data[0].region}</p>`
+    // countryList.innerHTML = `<li style="list-style-image: url(${data[0].flags.svg})">${data[0].name.official}</li>`
+    countryList.innerHTML = data.map((item) => {
+      return `<li class='no-bullets'>
+      <div class="info-flex">
+      <img src="${item.flags.svg}" class="biggerIcon">
+      <p>${item.name.official}</p>
+      </div>
+    </li>`;
+    })
+    
+    if (countryName.length < 2) {
+      Notiflix.Notify.info("Занадто багато результатів. Введіть точніший запит");
+      countryList.innerHTML = ''
+      countryInfo.innerHTML = ''
+    }
+    if (countryName.length > 3) {
+      countryList.innerHTML = ''
 
+      countryInfo.innerHTML = `<div class="info-flex"><img src="${data[0].flags.svg}" class="biggerIcon"><h3 class="biggerFont">${data[0].name.official}</h3></div>
+    <li class='no-bullets'><b>Capital: </b> ${data[0].capital}</li>
+    <li class='no-bullets'><b>Population: </b> ${data[0].population}</li>
+    <li class='no-bullets'><b>Languages: </b> ${Object.values(data[0].languages).toString().split(',').join(', ')}</li>
+    `;
+    }
 
-
-// запускаємо функцію рендеренгу результату
-function renderCountriesList(countries) {
-    const markup = countries
-      .map((country) => {
-        return `
-            <li style="list-style-image: ${country.flags.svg}">
-              <p>${country.name}</p>
-            </li>
-        `;
-      })
-      .join("");
-    countryList = markup;
-}
-const DEBOUNCE_DELAY = 300;
+  })
+  .catch((error) => {
+    Notiflix.Notify.failure('Овва, країни з таким іменем не існує')
+    countryList.innerHTML = ''
+    countryInfo.innerHTML = ''
+  }
+  ), 300) 
+})
