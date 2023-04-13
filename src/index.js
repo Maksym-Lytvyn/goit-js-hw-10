@@ -1,6 +1,7 @@
 // здійснюємо потрібні імпорти
 import './css/styles.css';
 import { debounce } from 'lodash';
+import _throttle from 'lodash.throttle';
 import Notiflix from 'notiflix';
 // захоплюємо потрібні елементи
 const input = document.querySelector('input');
@@ -13,7 +14,7 @@ input.addEventListener('input', () => {
   countryName.trim();
   let url = `https://restcountries.com/v3.1/name/${countryName}`;
   console.log(url);
-  const debounced = debounce(() => { fetch(url)
+  const throttled = _throttle(() => { fetch(url)
   .then((res) => res.json()
   )
   .then((data) => {
@@ -50,6 +51,6 @@ input.addEventListener('input', () => {
     countryList.innerHTML = ''
     countryInfo.innerHTML = ''
   }
-  )}, 2300);
-  debounced(); 
+  )}, 300);
+  throttled(); 
 })
